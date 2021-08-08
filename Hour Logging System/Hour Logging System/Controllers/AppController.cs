@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Hour_Logging_System.Mongo;
+using System.Collections.Generic;
 
 namespace Hour_Logging_System.Controllers
 {
@@ -12,9 +13,9 @@ namespace Hour_Logging_System.Controllers
         public IActionResult Index()
         {
             
-            if (HttpContext.Session.GetObject<User>("User") != null)
+            if (HttpContext.Session.GetObject<Employee>("User") != null)
             {
-                return View(HttpContext.Session.GetObject<User>("User"));
+                return View(HttpContext.Session.GetObject<Employee>("User"));
             }
             else
             {
@@ -25,8 +26,20 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult Login()
         {//Load Login Page
-            if (HttpContext.Session.GetObject<User>("User") == null)
+            if (HttpContext.Session.GetObject<Employee>("User") == null)
             {
+                MongoHandler handler = new MongoHandler();
+
+                Employee user = new Employee();
+
+                user.FirstName = "Luke";
+                user.LastName = "Else";
+                user.Password = "No";
+                user.Company = "CSM Valeting";
+                user.Hours = new List<Hours>();
+                user.Hours.Add(new Hours() { Start = System.DateTime.Now, End = System.DateTime.Now, Paid = false, Notes = "Worked Really well, can't wait to do it again tomorrow!!" });
+
+                handler.Insert(user);
                 return View();
             }
             else
