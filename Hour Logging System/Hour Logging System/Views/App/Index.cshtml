@@ -1,4 +1,5 @@
 ﻿@using Hour_Logging_System.Models;
+@using Microsoft.AspNetCore.Http; 
 
 @model Hour_Logging_System.Models.Employee;
 
@@ -7,6 +8,6 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome, @Model.FirstName  @Model.LastName</h1>
+    <h1 class="display-4">Welcome, @Model.FirstName @Model.LastName</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>

@@ -7,15 +7,16 @@ namespace Hour_Logging_System.Mongo
 {
     public class MongoHandler
     {
-        private static string ConnectionString { get; } = "mongodb://EmployeeAttendance:C5cScKv75yE2Gfie@luke-else.com/EmployeeAttendance?authDatabase=EmployeeAttendance&retryWrites=true&w=majority";
+        private static string ConnectionString { get; } = "mongodb://hourlogging:@luke-else.com/hourlogging?authDatabase=hourlogging&retryWrites=true&w=majority";
         private MongoClient Client { get; set; } = new MongoClient(ConnectionString);
 
 
         //Database Methods
         public bool Insert(Employee employee)
         {
-            var database = Client.GetDatabase("EmployeeAttendance");
-            var collection = database.GetCollection<Employee>("Employees");
+            var database = Client.GetDatabase("hourlogging");
+            var collection = database.GetCollection<Employee>("employees");
+            
 
             var list = collection.Find(x => x.FirstName == employee.FirstName && x.LastName == employee.LastName).ToList();
 
@@ -29,15 +30,76 @@ namespace Hour_Logging_System.Mongo
                 return false;
             }
 
-            
+        }
+
+        public bool Insert(Manager manager)
+        {
+            var database = Client.GetDatabase("hourlogging");
+            var collection = database.GetCollection<Manager>("managers");
+
+            var list = collection.Find(x => x.FirstName == manager.FirstName && x.LastName == manager.LastName).ToList();
+
+            if (list == null)
+            {
+                collection.InsertOne(manager);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
 
         }
 
-        //public T Get<T>()
-        //{
-            
 
-        //}
+
+
+
+        //Pass in an employee with First, Last and password filled in in order to get a returned object that has hours and company filled.
+        public Employee Get(Employee employee)
+        {
+
+            var database = Client.GetDatabase("hourlogging");
+            var collection = database.GetCollection<Employee>("employees");
+            var list = collection.Find(x => 
+                                        x.FirstName == employee.FirstName && 
+                                        x.LastName == employee.LastName && 
+                                        x.Password == employee.Password
+                                        ).ToList();
+
+            if(list.Count == 0)
+            {//Return null if there was no employee found.
+                return null;
+            }
+            else
+            {//return the first (Only) Employee object found.
+                return list[0];
+            }
+
+        }
+
+        //Pass in a manager object with password and get back a filled object if one is found.
+        public Manager Get(Manager manager)
+        {
+
+            var database = Client.GetDatabase("hourlogging");
+            var collection = database.GetCollection<Manager>("managers");
+            var list = collection.Find(x =>
+                                        x.FirstName == manager.FirstName &&
+                                        x.LastName == manager.LastName &&
+                                        x.Password == manager.Password
+                                        ).ToList();
+
+            if (list == null)
+            {//Return null if there was no Manager found.
+                return null;
+            }
+            else
+            {//return the first (Only) Manager object found.
+                return list[0];
+            }
+
+        }
 
         public void Update(Employee item)
         {

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hour_Logging_System.Controllers
 {
-    public class SessionController : Controller
+    public class ManagerController : Controller
     {
         public IActionResult Index()
         {
