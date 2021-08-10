@@ -10,7 +10,6 @@ namespace Hour_Logging_System.Controllers
     {
         public IActionResult Login(string username, string password)
         {
-            
 
             if (username != null && password != null)
             {
@@ -20,14 +19,15 @@ namespace Hour_Logging_System.Controllers
 
                 MongoHandler db = new MongoHandler();
 
-                Employee employee = new Employee() { Username = username, Password = HashedPassword };
+                Employee employee = new Employee() { Username = username, Password = HashedPassword};
 
                 Employee user = db.Get(employee);
 
                 if (user == null)
                 {//return error - User not found
+                    TempData["name"] = "User not found!";
+                    TempData["showError"] = "true";
                     return RedirectToAction("EmployeeLogin", "App");
-                    
                 }
                 else
                 {
@@ -36,7 +36,6 @@ namespace Hour_Logging_System.Controllers
             }
             else
             {//Return error - Missing Username of Password
-                ViewBag.Error = new Error { ErrorMessage = "Missing Credentials" };
                 return RedirectToAction("EmployeeLogin", "App");
             }
 
