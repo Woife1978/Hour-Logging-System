@@ -18,14 +18,11 @@
         <button type="submit" class="btn btn-dark">Login</button>
 
         @{
-            if (Model != null)
-            {
+            if (TempData["showError"] != null) {
                 <div class="alert alert-danger">
-                    <strong>Warning!</strong> @Model.ErrorMessage
+                    <strong>Warning!</strong> @TempData["name"]
                 </div>
             }
-
-
         }
     </form>
 </div>
