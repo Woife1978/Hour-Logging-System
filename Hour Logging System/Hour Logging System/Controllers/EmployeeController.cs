@@ -19,7 +19,7 @@ namespace Hour_Logging_System.Controllers
 
                 MongoHandler db = new MongoHandler();
 
-                Employee employee = new Employee() { Username = username, Password = password};
+                Employee employee = new Employee() { Username = username, Password = HashedPassword};
 
                 Employee user = db.Get(employee);
 
