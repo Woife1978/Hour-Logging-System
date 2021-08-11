@@ -20,7 +20,7 @@ namespace Hour_Logging_System.Mongo
 
             var list = collection.Find(x => x.FirstName == employee.FirstName && x.LastName == employee.LastName).ToList();
 
-            if (list == null)
+            if (list.Count == 0)
             {
                 collection.InsertOne(employee);
                 return true;
@@ -39,7 +39,7 @@ namespace Hour_Logging_System.Mongo
 
             var list = collection.Find(x => x.FirstName == manager.FirstName && x.LastName == manager.LastName).ToList();
 
-            if (list == null)
+            if (list.Count == 0)
             {
                 collection.InsertOne(manager);
                 return true;
@@ -61,11 +61,7 @@ namespace Hour_Logging_System.Mongo
 
             var database = Client.GetDatabase("hourlogging");
             var collection = database.GetCollection<Employee>("employees");
-            var list = collection.Find(x => 
-                                        x.FirstName == employee.FirstName && 
-                                        x.LastName == employee.LastName && 
-                                        x.Password == employee.Password
-                                        ).ToList();
+            var list = collection.Find(x => x.Username == employee.Username).ToList();
 
             if(list.Count == 0)
             {//Return null if there was no employee found.
@@ -90,7 +86,7 @@ namespace Hour_Logging_System.Mongo
                                         x.Password == manager.Password
                                         ).ToList();
 
-            if (list == null)
+            if (list.Count == 0)
             {//Return null if there was no Manager found.
                 return null;
             }

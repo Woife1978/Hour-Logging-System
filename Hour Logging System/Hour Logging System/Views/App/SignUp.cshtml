@@ -1,0 +1,77 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<div class="row">
+
+    <div class="card-body col-md-6">
+        <div class="container jumbotron">
+            <h3>Employee Sign Up</h3>
+
+            <br />
+            <br />
+
+            <form method="post" asp-controller="Employee" asp-action="SignUp">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="First Name" name="firstname" value="@TempData["firstname"]">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Last Name" name="lastname" value="@TempData["lastname"]">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Company" name="company" value="@TempData["company"]">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Username" name="username" value="@TempData["username"]">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="Password" name="password">
+                </div>
+                <button type="submit" class="btn btn-dark">Sign Up</button>
+
+                @{
+                    if (TempData["Error"] != null)
+                    {
+                        <br />
+                        <br />
+
+                        <div class="alert alert-danger">
+                            <strong>Warning!</strong> @TempData["Error"] <button type='button' class='close' data-dismiss='alert' aria-hidden='true' />&times;
+                        </div>
+                    }
+                }
+            </form>
+        </div>
+    </div>
+
+    <div class="card-body col-md-6">
+        <div class="container jumbotron">
+            <h3>Manager Sign Up</h3>
+
+            <br />
+            <br />
+
+            <form method="post" asp-controller="Manager" asp-action="SignUp">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Username" name="username" value="@TempData[" Username"]">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="Password" name="password">
+                </div>
+                <button type="submit" class="btn btn-dark">Login</button>
+
+                @{
+                    if (TempData["Error"] != null)
+                    {
+                        <br />
+                        <br />
+
+                        <div class="alert alert-danger">
+                            <strong>Warning!</strong> @TempData["Error"] <button type='button' class='close' data-dismiss='alert' aria-hidden='true' />&times;
+                        </div>
+                    }
+                }
+            </form>
+        </div>
+    </div>
+</div>

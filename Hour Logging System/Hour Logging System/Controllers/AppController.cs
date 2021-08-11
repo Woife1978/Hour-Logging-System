@@ -13,7 +13,7 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetObject<IUser>("User") != null)
+            if (HttpContext.Session.GetString("User") != null)
             {
                 if (HttpContext.Session.GetString("UserMode") == "Manager")
                 {
@@ -39,12 +39,23 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult Employee()
         {
-            return View();
+            if (
+                HttpContext.Session.GetString("User") != null && 
+                HttpContext.Session.GetString("UserMode") == "Employee"
+                )
+            {
+                return View(HttpContext.Session.GetObject<Employee>("User"));
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+            
         }
 
         public IActionResult EmployeeLogin()
         {//Load Login Page
-            if (HttpContext.Session.GetObject<IUser>("User") == null)
+            if (HttpContext.Session.GetString("User") == null)
             {
                 return View();
                 
@@ -69,7 +80,7 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult ManagerLogin()
         {//Load Login Page
-            if (HttpContext.Session.GetObject<IUser>("User") == null)
+            if (HttpContext.Session.GetString("User") == null)
             {
                 return View();
             }
@@ -84,7 +95,7 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult Logout()
         {//Logout and return to main view.
-            HttpContext.Session.SetObject("User", null);
+            HttpContext.Session.Clear();
 
             return RedirectToAction("Index");
         }
@@ -97,7 +108,7 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult SignUp()
         {//Load SignUp Page
-            if (HttpContext.Session.GetObject<IUser>("User") == null)
+            if (HttpContext.Session.GetString("User") == null)
             {
                 return View();
             }
