@@ -97,9 +97,12 @@ namespace Hour_Logging_System.Mongo
 
         }
 
-        public void Update(Employee item)
+        public void Update(Employee employee)
         {
+            var database = Client.GetDatabase("hourlogging");
+            var collection = database.GetCollection<Employee>("employees");
 
+            collection.ReplaceOne(x => x.Username == employee.Username, employee);
         }
 
         public void Delete()

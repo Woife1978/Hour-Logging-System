@@ -5,6 +5,7 @@ using Hour_Logging_System.Encryption;
 using Hour_Logging_System.Models;
 using Hour_Logging_System.Sessions;
 using System.Collections.Generic;
+using System;
 
 namespace Hour_Logging_System.Controllers
 {
@@ -50,8 +51,11 @@ namespace Hour_Logging_System.Controllers
             return RedirectToAction("Index", "App");
         }
 
-        public IActionResult SignUp(string firstName, string lastName, string username, string company, string password)
+        public IActionResult SignUp(string firstName, string lastName, string company, string username, string password)
         {
+            firstName.Trim();
+            lastName.Trim();
+            company.Trim();
             username.Trim().ToLower();
 
             string hashedPassword = EasyMD5.Hash(password);
@@ -78,8 +82,8 @@ namespace Hour_Logging_System.Controllers
             else
             {
                 TempData["Error"] = "Sorry, Username is taken. Try another combination";
-                TempData["FirstName"] = username;
-                TempData["LastName"] = username;
+                TempData["FirstName"] = firstName;
+                TempData["LastName"] = lastName;
                 TempData["Username"] = username;
                 TempData["Company"] = company;
                 return RedirectToAction("SignUp", "App");
@@ -88,18 +92,99 @@ namespace Hour_Logging_System.Controllers
             return RedirectToAction("Index", "App");
 
         }
-        public IActionResult Pay()
-        {
-            return View();
-        }
 
         public IActionResult ClockIn()
         {
-            return View();
+            //Refresh the employee in order to ensure that they have not already clocked in somewhere else.
+            SessionManager sessionManager = new SessionManager();
+            Employee user = sessionManager.ReloadUser(HttpContext.Session.GetObject<Employee>("User"));
+            
+            Hours previousSession;
+
+            if (user.Hours.Count > 0)
+            {
+                 previousSession = user.Hours[user.Hours.Count - 1];
+            }
+            else
+            {
+                previousSession = new Hours()
+                {
+                    End = new DateTime()
+                };
+            }
+
+            
+            
+            if (previousSession.End != null)
+            {
+
+                //Clock in
+                user.Hours.Add(new Hours()
+                {
+                    Start = System.DateTime.Now
+                });
+
+                //Push to DB
+                MongoHandler db = new MongoHandler();
+                db.Update(user);
+                HttpContext.Session.SetObject("User", user);
+
+                return RedirectToAction("Index", "App");
+            }
+            else
+            {
+                TempData["Error"] = "User is already Clocked in... Unable to process request.";
+                return RedirectToAction("Index", "App");
+            }
+            
+            
+            
         }
         public IActionResult ClockOut()
         {
-            return View();
+            //Refresh the employee in order to ensure that they have not already clocked in somewhere else.
+            SessionManager sessionManager = new SessionManager();
+            Employee user = sessionManager.ReloadUser(HttpContext.Session.GetObject<Employee>("User"));
+
+            Hours currentSession;
+
+            //Check if there is a session that is alredy made
+            if (user.Hours.Count > 0)
+            {
+                currentSession = user.Hours[user.Hours.Count - 1];
+            }
+            else
+            {
+                currentSession = new Hours()
+                {
+                    Start = new DateTime(),
+                    End = new DateTime()
+                };
+            }
+
+            //If the latest session 
+            if (currentSession.Start != null && currentSession.End == null)
+            {
+
+                //Clock Out
+                user.Hours[user.Hours.Count - 1].End = DateTime.Now;
+
+                MongoHandler db = new MongoHandler();
+                db.Update(user);
+                HttpContext.Session.SetObject("User", user);
+
+                return RedirectToAction("Index", "App");
+            }
+            else
+            {
+                TempData["Error"] = "Sorry but you are not currently clocked in... Please clock in before trying to clock out!";
+                return RedirectToAction("Index", "App");
+            }
+
+
         }
+
+
+        
     }
 }
