@@ -142,7 +142,46 @@ namespace Hour_Logging_System.Controllers
         }
         public IActionResult ClockOut()
         {
-            
+            //Refresh the employee in order to ensure that they have not already clocked in somewhere else.
+            SessionManager sessionManager = new SessionManager();
+            Employee user = sessionManager.ReloadUser(HttpContext.Session.GetObject<Employee>("User"));
+
+            Hours currentSession;
+
+            //Check if there is a session that is alredy made
+            if (user.Hours.Count > 0)
+            {
+                currentSession = user.Hours[user.Hours.Count - 1];
+            }
+            else
+            {
+                currentSession = new Hours()
+                {
+                    Start = new DateTime(),
+                    End = new DateTime()
+                };
+            }
+
+            //If the latest session 
+            if (currentSession.Start != null && currentSession.End == null)
+            {
+
+                //Clock Out
+                user.Hours[user.Hours.Count - 1].End = DateTime.Now;
+
+                MongoHandler db = new MongoHandler();
+                db.Update(user);
+                HttpContext.Session.SetObject("User", user);
+
+                return RedirectToAction("Index", "App");
+            }
+            else
+            {
+                TempData["Error"] = "Sorry but you are not currently clocked in... Please clock in before trying to clock out!";
+                return RedirectToAction("Index", "App");
+            }
+
+
         }
 
 
