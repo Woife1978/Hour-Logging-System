@@ -23,11 +23,11 @@ namespace Hour_Logging_System.Models
         public List<Hours> Hours { get; set; }
     }
 
-    //Each user will have a set of hours for each day along with a value for 
+    //Each user will have a set of hours for each day along with a value for its status and any notes they make
     public class Hours
     {
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public DateTime? Start { get; set; } = null;
+        public DateTime? End { get; set; } = null;
         public bool Paid { get; set; }
         public string Notes { get; set; }
     }
