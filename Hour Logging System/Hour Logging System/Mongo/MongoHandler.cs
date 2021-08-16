@@ -2,12 +2,13 @@
 using Hour_Logging_System.Models;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using System;
 
 namespace Hour_Logging_System.Mongo
 {
     public class MongoHandler
     {
-        private static string ConnectionString { get; } = "mongodb://hourlogging:@luke-else.com/hourlogging?authDatabase=hourlogging&retryWrites=true&w=majority";
+        private static string ConnectionString { get; } = "mongodb://hourlogging:DxyZ9gQYWqyj722m@luke-else.com/hourlogging?authDatabase=hourlogging&retryWrites=true&w=majority";
         private MongoClient Client { get; set; } = new MongoClient(ConnectionString);
 
 
@@ -109,5 +110,6 @@ namespace Hour_Logging_System.Mongo
         {
 
         }
+
     }
 }

@@ -1,6 +1,28 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Mvc; 
-@using Hour_Logging_System.Sessions;  
+@using Hour_Logging_System.Sessions; 
+
+@{ 
+    //Create local objects of the current user status
+
+    IUser user = null;
+    string userMode = null;
+
+    if (Context.Session.GetString("User") != null)
+    {
+        if (Context.Session.GetString("UserMode") == "Employee")
+        {
+            user = Context.Session.GetObject<Employee>("User");
+        }
+        else
+        {
+            user = Context.Session.GetObject<Manager>("User");
+        }
+
+        userMode = Context.Session.GetString("UserMode");
+
+    }
+} 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,34 +43,47 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="Index">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="EmployeeLogin">Employee Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="ManagerLogin">Manager Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="SignUp">Sign Up</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="Logout">Logout</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="ClockIn">Clock In</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="ClockOut">Clock Out</a>
-                        </li>
+                        
+                        
 
 
                         <ul class="nav navbar-nav navbar-right">
 
                             @{
+                                if (user == null)
+                                {//If the user is not logged in
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="EmployeeLogin">Employee Login</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="ManagerLogin">Manager Login</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="SignUp">Sign Up</a>
+                                    </li>
+                                }
+                                else
+                                {//If the user is logged in
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="Index">Dashboard</a>
+                                    </li>
+                                    if (userMode == "Employee")
+                                    {//if the user is logged in as an employee
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="ClockIn">Clock In</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Employee" asp-action="ClockOut">Clock Out</a>
+                                        </li>
+                                    }
+                                    else
+                                    {//If the user is logged in as an admin
 
-
+                                    }
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="App" asp-action="Logout">Logout</a>
+                                    </li>
+                                }
 
                             }
 

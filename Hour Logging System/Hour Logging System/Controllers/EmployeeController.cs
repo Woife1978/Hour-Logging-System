@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Hour_Logging_System.Mongo;
-using Hour_Logging_System.Encryption;
+﻿using Hour_Logging_System.Encryption;
 using Hour_Logging_System.Models;
+using Hour_Logging_System.Mongo;
 using Hour_Logging_System.Sessions;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 
 namespace Hour_Logging_System.Controllers
 {
@@ -13,39 +13,43 @@ namespace Hour_Logging_System.Controllers
     {
         public IActionResult Login(string username, string password)
         {
-
-            if (username != null && password != null)
+            //If the user is already logged, don't process the data
+            if (HttpContext.Session.GetString("User") == null)
             {
-                username.Trim().ToLower();
+                if (username != null && password != null)
+                {
+                    username.Trim().ToLower();
 
-                string hashedPassword = EasyMD5.Hash(password);
+                    string hashedPassword = EasyMD5.Hash(password);
 
-                MongoHandler db = new MongoHandler();
+                    MongoHandler db = new MongoHandler();
 
-                Employee employee = new Employee() { 
-                    Username = username, 
-                    Password = hashedPassword
-                };
+                    Employee employee = new Employee()
+                    {
+                        Username = username,
+                        Password = hashedPassword
+                    };
 
-                Employee user = db.Get(employee);
+                    Employee user = db.Get(employee);
 
-                if (user == null || user.Password != hashedPassword)
-                {//return error - User not found
-                    TempData["Error"] = "Sorry, Incorrect Username or Password";
+                    if (user == null || user.Password != hashedPassword)
+                    {//return error - User not found
+                        TempData["Error"] = "Sorry, Incorrect Username or Password";
+                        TempData["Username"] = username;
+                        return RedirectToAction("EmployeeLogin", "App");
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetObject("User", user);
+                        HttpContext.Session.SetString("UserMode", "Employee");
+                    }
+                }
+                else
+                {//Return error - Missing Username of Password
+                    TempData["Error"] = "Please enter both your Username and Password";
                     TempData["Username"] = username;
                     return RedirectToAction("EmployeeLogin", "App");
                 }
-                else
-                {
-                    HttpContext.Session.SetObject("User", user);
-                    HttpContext.Session.SetString("UserMode", "Employee");
-                }
-            }
-            else
-            {//Return error - Missing Username of Password
-                TempData["Error"] = "Please enter both your Username and Password";
-                TempData["Username"] = username;
-                return RedirectToAction("EmployeeLogin", "App");
             }
 
             return RedirectToAction("Index", "App");
@@ -53,40 +57,63 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult SignUp(string firstName, string lastName, string company, string username, string password)
         {
-            firstName.Trim();
-            lastName.Trim();
-            company.Trim();
-            username.Trim().ToLower();
-
-            string hashedPassword = EasyMD5.Hash(password);
-
-            MongoHandler db = new MongoHandler();
-
-            Employee employee = new Employee() {
-                Username = username,
-                FirstName = firstName,
-                LastName = lastName,
-                Password = hashedPassword,
-                Company = company,
-                Hours = new List<Hours>()
-            };
-
-            Employee user = db.Get(employee);
-
-            if (user == null)
+            if (HttpContext.Session.GetString("User") == null)
             {
-                db.Insert(employee);
-                Login(username, password);
+                if (
+                    firstName != null 
+                    && lastName != null 
+                    && company != null 
+                    && username != null 
+                    && password != null
+                    )
+                {
+                    firstName = firstName.Trim();
+                    lastName = lastName.Trim();
+                    company = company.Trim();
+                    username = username.Trim().ToLower();
 
-            }
-            else
-            {
-                TempData["Error"] = "Sorry, Username is taken. Try another combination";
-                TempData["FirstName"] = firstName;
-                TempData["LastName"] = lastName;
-                TempData["Username"] = username;
-                TempData["Company"] = company;
-                return RedirectToAction("SignUp", "App");
+                    string hashedPassword = EasyMD5.Hash(password);
+
+                    MongoHandler db = new MongoHandler();
+
+                    Employee employee = new Employee()
+                    {
+                        Username = username,
+                        FirstName = firstName,
+                        LastName = lastName,
+                        Password = hashedPassword,
+                        Company = company,
+                        Hours = new List<Hours>()
+                    };
+
+                    Employee user = db.Get(employee);
+
+                    if (user == null)
+                    {
+                        db.Insert(employee);
+                        Login(username, password);
+
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Sorry, Username is taken. Try another combination";
+                        TempData["FirstName"] = firstName;
+                        TempData["LastName"] = lastName;
+                        TempData["Username"] = username;
+                        TempData["Company"] = company;
+                        return RedirectToAction("SignUp", "App");
+                    }
+                }
+                else
+                {
+                    TempData["Error"] = "Please ensure that all fields are filled!";
+                    TempData["FirstName"] = firstName;
+                    TempData["LastName"] = lastName;
+                    TempData["Username"] = username;
+                    TempData["Company"] = company;
+                    return RedirectToAction("SignUp", "App");
+                }
+                
             }
 
             return RedirectToAction("Index", "App");
@@ -95,45 +122,53 @@ namespace Hour_Logging_System.Controllers
 
         public IActionResult ClockIn()
         {
-            //Refresh the employee in order to ensure that they have not already clocked in somewhere else.
-            SessionManager sessionManager = new SessionManager();
-            Employee user = sessionManager.ReloadUser(HttpContext.Session.GetObject<Employee>("User"));
-            
-            Hours previousSession;
-
-            if (user.Hours.Count > 0)
+            if (HttpContext.Session.GetString("User") != null)
             {
-                 previousSession = user.Hours[user.Hours.Count - 1];
+                //Refresh the employee in order to ensure that they have not already clocked in somewhere else.
+                SessionManager sessionManager = new SessionManager();
+                Employee user = sessionManager.ReloadUser(HttpContext.Session.GetObject<Employee>("User"));
+
+                Hours previousSession;
+
+                if (user.Hours.Count > 0)
+                {
+                    previousSession = user.Hours[user.Hours.Count - 1];
+                }
+                else
+                {
+                    previousSession = new Hours()
+                    {
+                        End = new DateTime()
+                    };
+                }
+
+
+
+                if (previousSession.End != null)
+                {
+
+                    //Clock in
+                    user.Hours.Add(new Hours()
+                    {
+                        Start = System.DateTime.Now
+                    });
+
+                    //Push to DB
+                    MongoHandler db = new MongoHandler();
+                    db.Update(user);
+                    HttpContext.Session.SetObject("User", user);
+
+                    return RedirectToAction("Index", "App");
+                }
+                else
+                {
+                    TempData["Error"] = "User is already Clocked in... Unable to process request.";
+                    return RedirectToAction("Index", "App");
+                }
             }
             else
             {
-                previousSession = new Hours()
-                {
-                    End = new DateTime()
-                };
-            }
-
-            
-            
-            if (previousSession.End != null)
-            {
-
-                //Clock in
-                user.Hours.Add(new Hours()
-                {
-                    Start = System.DateTime.Now
-                });
-
-                //Push to DB
-                MongoHandler db = new MongoHandler();
-                db.Update(user);
-                HttpContext.Session.SetObject("User", user);
-
-                return RedirectToAction("Index", "App");
-            }
-            else
-            {
-                TempData["Error"] = "User is already Clocked in... Unable to process request.";
+                TempData["Error"] = "Sorry, we were unable to process your request becuase the user was not signed in!";
                 return RedirectToAction("Index", "App");
             }
             
