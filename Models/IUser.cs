@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Hour_Logging_System.Models
 {
-    interface IUser
+    public interface IUser
     {
         public string Username { get; set; }
         public string FirstName { get; set; }

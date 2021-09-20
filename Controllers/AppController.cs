@@ -90,20 +90,12 @@ namespace Hour_Logging_System.Controllers
             }
         }
 
-
-
-
         public IActionResult Logout()
         {//Logout and return to main view.
             HttpContext.Session.Clear();
 
             return RedirectToAction("Index");
         }
-
-
-
-
-
 
 
         public IActionResult SignUp()

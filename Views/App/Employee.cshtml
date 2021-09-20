@@ -1,0 +1,37 @@
+﻿@using Hour_Logging_System.Models;
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@{
+    @model Hour_Logging_System.Models.Employee;
+}
+
+@{
+    if (TempData["Error"] != null)
+    {
+
+        <br />
+        <br />
+
+        <div class="alert alert-danger">
+            <strong>Warning!</strong> @TempData["Error"] <button type='button' class='close' data-dismiss='alert' aria-hidden='true' />&times;
+        </div>
+    }
+}
+
+<h1>You are logged in as an employee from @Model.Company</h1>
+<p>Welcome, @Model.Username (@Model.FirstName @Model.LastName)</p>
+
+
+@{
+    if (Model.Hours.Count == 0 || Model.Hours[Model.Hours.Count - 1].End != null)
+    {//If the user is NOT currently clocked in
+        <a asp-controller="Employee" asp-action="ClockIn"><button>Clock In</button></a>
+    }
+    else
+    {//If the user is currently clocked in!
+        <a asp-controller="Employee" asp-action="ClockOut"><button>Clock Out</button></a>
+    }
+}
