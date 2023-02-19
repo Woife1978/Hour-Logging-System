@@ -8,7 +8,7 @@ using Hour_Logging_System.Sessions;
 
 namespace Hour_Logging_System.Controllers
 {
-    public class AppController : Controller
+    public class AppController : Microsoft.AspNetCore.Mvc.Controller
     {
 
         public IActionResult Index()

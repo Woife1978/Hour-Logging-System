@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Hour_Logging_System.Controllers
 {
-    public class EmployeeController : Controller
+    public class EmployeeController : Microsoft.AspNetCore.Mvc.Controller
     {
         public IActionResult Login(string username, string password)
         {

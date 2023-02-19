@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Hour_Logging_System.Controllers
 {
-    public class ManagerController : Controller
+    public class ManagerController : Microsoft.AspNetCore.Mvc.Controller
     {
         public IActionResult Index()
         {
